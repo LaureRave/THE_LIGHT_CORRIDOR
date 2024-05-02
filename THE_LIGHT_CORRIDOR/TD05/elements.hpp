@@ -49,6 +49,8 @@ class Player
 public:
     double size; // racket is a square
     Position pos;
+    bool bonusStick = false;  // stick
+    bool bonusLife = false;  // ++ life
 
     Player() = default;
 
@@ -235,26 +237,35 @@ private:
             ballMaxY >= player.pos.y + currentPos && ballMinY <= player.pos.y + currentPos &&
             ballMaxZ >= player.pos.z - player.size / 2 && ballMinZ <= player.pos.z + player.size / 2)
         {
-            const double MAX_SPEED = std::abs(speed.y);
+            if (player.bonusStick) {
+                // THE BALL STICK TO THE RACKET
+                pos = Position(player.pos.x, radius + currentPos + 1, player.pos.z);
+                speed = Position(0, defaultSpeed, 0);
+                isThrown = false;
+            }
+            else {
+                // REBOND
+                const double MAX_SPEED = std::abs(speed.y);
 
-            // DISTANCE CENTER RACKET - BALL
-            float distanceFromCenterX = pos.x - player.pos.x;
-            float distanceFromCenterZ = pos.z - player.pos.z;
+                // DISTANCE CENTER RACKET - BALL
+                float distanceFromCenterX = pos.x - player.pos.x;
+                float distanceFromCenterZ = pos.z - player.pos.z;
 
-            // REBOUND DIRECTION
-            float reboundDirectionX = distanceFromCenterX / (player.size / 2);
-            float reboundDirectionZ = distanceFromCenterZ / (player.size / 2);
+                // REBOUND DIRECTION
+                float reboundDirectionX = distanceFromCenterX / (player.size / 2);
+                float reboundDirectionZ = distanceFromCenterZ / (player.size / 2);
 
-            // UPDATE SPEED
-            speed.x = reboundDirectionX * MAX_SPEED;
-            speed.y = -speed.y;
-            speed.z = reboundDirectionZ * MAX_SPEED;
-
-            // CODE FOR THE BALL TO STICK TO THE RACKET (BONUS, NOT IMPLEMENTED YET)
-            // pos = Position(player.pos.x, radius + currentPos + 1, player.pos.z);
-            // speed = Position(0, defaultSpeed, 0);
-            // isThrown = false;
+                // UPDATE SPEED
+                speed.x = reboundDirectionX * MAX_SPEED;
+                speed.y = -speed.y;
+                speed.z = reboundDirectionZ * MAX_SPEED;
+            }
         }
+    }
+
+    void bonusCollision()
+    { 
+        // TODO
     }
 
     void wallCollision(Corridor corridor)
